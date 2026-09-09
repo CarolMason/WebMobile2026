@@ -1,0 +1,149 @@
+:root {
+  --vermelho: #C41E2A;
+  --vermelho-escuro: #8E1420;
+  --rosa-suave: #FFF3F2;
+  --branco: #FFFFFF;
+  --texto: #26130F;
+  --texto-suave: #7A6363;
+  --borda: #F1DCDA;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: "Inter", Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  color: var(--texto);
+}
+
+h1, h2 {
+  font-family: "Baloo 2", "Inter", sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* cabeçalho */
+
+header {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--borda);
+}
+
+header h1 {
+  color: var(--vermelho);
+  font-size: 22px;
+  display: inline-block;
+  margin: 0 14px 14px 0;
+}
+
+.botao-login {
+  background-color: var(--vermelho);
+  color: var(--branco);
+  border: none;
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 26px;
+  margin: 0;
+  padding: 0;
+}
+
+nav a {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--texto-suave);
+}
+
+nav a:hover {
+  color: var(--vermelho);
+}
+
+/* conteúdo */
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px 24px;
+}
+
+.mensagem-flutuante {
+  background-color: var(--rosa-suave);
+  color: var(--vermelho-escuro);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+section {
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  padding: 26px 24px;
+  margin-bottom: 26px;
+}
+
+section h2 {
+  font-size: 22px;
+  margin: 0 0 6px;
+}
+
+section p, .texto-ajuda {
+  color: var(--texto-suave);
+  line-height: 1.6;
+  font-size: 14.5px;
+}
+
+/* formulário */
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+input {
+  padding: 10px 12px;
+  border: 1.5px solid var(--borda);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--vermelho);
+}
+
+button[type="submit"] {
+  margin-top: 18px;
+  background-color: var(--vermelho);
+  color: var(--branco);
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.escondido {
+  display: none;
+}
