@@ -1,11 +1,11 @@
 :root {
-  vermelho: #C41E2A;
-  vermelho-escuro: #8E1420;
-  rosa-suave: #FFF3F2;
-  branco: #FFFFFF;
-  texto: #26130F;
-  textinho: #7A6363;
-  borda: #F1DCDA;
+  --vermelho: #C41E2A;
+  --vermelho-escuro: #8E1420;
+  --rosa-suave: #FFF3F2;
+  --branco: #FFFFFF;
+  --texto: #26130F;
+  --textinho: #7A6363;
+  --borda: #F1DCDA;
 }
 
 * {
@@ -15,7 +15,7 @@
 
 body {
   margin: 0;
-  color: var(texto);
+  color: var(--vermelho-escuro);
 }
 
 h1, h2 {
@@ -28,12 +28,11 @@ a {
 }
 
 
-
 header {
   max-width: 900px;
   margin: 0 auto;
   padding: 18px 24px;
-  border-bottom: 1px solid var(borda);
+  border-bottom: 1px solid var(--borda);
 }
 
 header h1 {
@@ -44,8 +43,8 @@ header h1 {
 }
 
 .botao-login {
-  background-color: var(vermelho);
-  color: var(branco);
+  background-color: var(--vermelho);
+  color: var(--branco);
   border: none;
   padding: 9px 20px;
   border-radius: 8px;
@@ -64,12 +63,13 @@ nav ul {
 nav a {
   font-size: 14px;
   font-weight: 600;
-  color: var(textinho);
+  color: var(--textinho);
 }
 
 nav a:hover {
-  color: var(vermelho);
+  color: var(--vermelho);
 }
+
 
 
 main {
@@ -79,8 +79,8 @@ main {
 }
 
 .mensagem-flutuante {
-  background-color: var(rosa-suave);
-  color: var(vermelho-escuro);
+  background-color: var(--rosa-suave);
+  color: var(--vermelho-escuro);
   border-radius: 8px;
   padding: 10px 14px;
   font-size: 13.5px;
@@ -89,7 +89,7 @@ main {
 }
 
 section {
-  border: 1px solid var(borda);
+  border: 1px solid var(--borda);
   border-radius: 16px;
   padding: 26px 24px;
   margin-bottom: 26px;
@@ -101,7 +101,7 @@ section h2 {
 }
 
 section p, .texto-ajuda {
-  color: var(textinho);
+  color: var(--textinho);
   line-height: 1.6;
   font-size: 14.5px;
 }
@@ -122,21 +122,21 @@ label {
 
 input {
   padding: 10px 12px;
-  border: 1.5px solid var(borda);
+  border: 1.5px solid var(--borda);
   border-radius: 8px;
   font-size: 14px;
 }
 
 input:focus {
   outline: none;
-  border-color: var(vermelho);
+  border-color: var(--vermelho);
 }
 
-button[type="submit"] {
+.button-submit {
   margin-top: 18px;
-  background-color: var(vermelho);
-  color: var(branco);
-  border: none;
+  background-color: white;
+  color: red;
+  border: 1px solid red;
   padding: 12px;
   border-radius: 8px;
   font-weight: 600;
@@ -145,4 +145,14 @@ button[type="submit"] {
 
 .escondido {
   display: none;
+}
+
+button {
+  background-color: var(--vermelho);
+  color: var(--branco);
+  border: none;
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
 }
