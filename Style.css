@@ -4,7 +4,7 @@
   --rosa-suave: #FFF3F2;
   --branco: #FFFFFF;
   --texto: #26130F;
-  --texto-suave: #7A6363;
+  --textinho: #7A6363;
   --borda: #F1DCDA;
 }
 
@@ -27,7 +27,7 @@ a {
   text-decoration: none;
 }
 
-/* cabeçalho */
+
 
 header {
   max-width: 900px;
@@ -71,7 +71,6 @@ nav a:hover {
   color: var(--vermelho);
 }
 
-/* conteúdo */
 
 main {
   max-width: 900px;
@@ -107,7 +106,7 @@ section p, .texto-ajuda {
   font-size: 14.5px;
 }
 
-/* formulário */
+
 
 form {
   display: flex;
