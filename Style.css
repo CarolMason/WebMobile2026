@@ -156,3 +156,25 @@ button {
   font-weight: 600;
   cursor: pointer;
 }
+
+
+
+
+#lista-historico {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+}
+
+#lista-historico li {
+  background-color: var(--rosa-suave);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.historico-vazio {
+  color: var(--textinho);
+  font-weight: normal;
+}
