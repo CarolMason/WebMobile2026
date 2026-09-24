@@ -1,13 +1,13 @@
-var botaoLogin = document.getElementById("botao-login");
-var mensagemLogin = document.getElementById("mensagem-login");
-var formCadastro = document.querySelector("#cadastro form");
-var formBusca = document.querySelector("#busca form");
+let botaoLogin = document.getElementById("botao-login");
+let mensagemLogin = document.getElementById("mensagem-login");
+let formCadastro = document.querySelector("#cadastro form");
+let formBusca = document.querySelector("#busca form");
 
-var listaHistorico = document.getElementById("lista-historico");
-var botaoLimpar = document.getElementById("botao-limpar");
+let listaHistorico = document.getElementById("lista-historico");
+let botaoLimpar = document.getElementById("botao-limpar");
 
 
-var historico = JSON.parse(localStorage.getItem("historico")) || [];
+let historico = JSON.parse(localStorage.getItem("historico")) || [];
 
 
 
@@ -26,7 +26,7 @@ if (formCadastro) {
   formCadastro.addEventListener("submit", function (evento) {
     evento.preventDefault();
 
-    var nome = document.getElementById("nome").value;
+    let nome = document.getElementById("nome").value;
 
     mensagemLogin.textContent = "Cadastro realizado com sucesso! Bem-vindo(a), " + nome + ".";
     mensagemLogin.classList.remove("escondido");
@@ -45,9 +45,9 @@ if (formBusca) {
   formBusca.addEventListener("submit", function (evento) {
     evento.preventDefault();
 
-    var destino = document.getElementById("destino").value;
-    var horario = document.getElementById("horario").value;
-    var partida = document.getElementById("partida").value;
+    let destino = document.getElementById("destino").value;
+    let horario = document.getElementById("horario").value;
+    let partida = document.getElementById("partida").value;
 
     if (destino === "") {
       mensagemLogin.textContent = "Digite um destino para buscar caronas.";
@@ -85,10 +85,10 @@ function mostrarHistorico() {
     return;
   }
 
-  for (var i = 0; i < historico.length; i++) {
-    var viagem = historico[i];
+  for (let i = 0; i < historico.length; i++) {
+    let viagem = historico[i];
 
-    var item = document.createElement("li");
+    let item = document.createElement("li");
     item.textContent =
       (viagem.partida || "Partida não informada") +
       " → " + viagem.destino +
