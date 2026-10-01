@@ -19,12 +19,6 @@ Antes de programar, desenhamos um wireframe à mão para organizar as seções d
 
 ## 2. Imagens do protótipo inicial
 
-<!-- TODO: inserir aqui a(s) foto(s)/scan do wireframe desenhado à mão antes de começar a programar.
-Exemplo de como referenciar uma imagem no README (coloque o arquivo em uma pasta, ex: /imagens/wireframe.png):
-
-![Wireframe inicial do CaronaU](imagens/wireframe.png)
-
-Se tiverem mais de um rascunho (ex: um para o cadastro, outro para a busca), adicionem uma imagem para cada um, com uma legenda curta explicando o que cada tela representa. -->
 
 O wireframe inicial organizava três blocos principais: o cabeçalho com o botão de login e o menu de navegação, a seção de cadastro do estudante e a seção de busca de carona com os campos de destino, horário e ponto de partida. A paleta vermelho e branco já estava definida nessa etapa, remetendo à ideia de trânsito/estrada.
 
@@ -45,7 +39,8 @@ O projeto é dividido em 5 arquivos:
 Página principal do site. Contém:
 - Cabeçalho com o nome do site, botão de **Login** e menu de navegação;
 - Seção de **Cadastro de usuário** (formulário com nome, faculdade, localização e e-mail);
-- Seção de **Buscar carona** (formulário com destino, horário e ponto de partida).
+- Seção de **Buscar carona** (formulário com destino, horário e ponto de partida);
+- Seção de **Caronas encontradas**, escondida no início e preenchida pelo `script.js` depois de uma busca.
 
 ### `Historico.html`
 Página que mostra o histórico de buscas de carona do usuário. Contém:
@@ -63,15 +58,26 @@ Página que explica o que é o CaronaU, como ele funciona e como garantimos a se
 Responsável pela aparência do site. Usa variáveis de cor (`:root`) para manter a paleta vermelho e branco consistente em todas as páginas. Estiliza o cabeçalho, o menu, as seções, os formulários e os botões, além de deixar o layout centralizado e responsivo.
 
 ### `script.js`
-Cuida da parte interativa do site — o que acontece quando o usuário clica em botões ou envia os formulários. Em resumo:
+Cuida da parte interativa do site (o que acontece quando o usuário clica ou envia formulários). O arquivo tem **4 interações principais**:
 
-Seleção dos elementos: no início do arquivo, o código guarda em variáveis (declaradas com `let`) os elementos da página que serão usados depois (o botão de login, a caixa de mensagem, os formulários de cadastro e busca, a lista de histórico e o botão de limpar), evitando ficar buscando o mesmo elemento várias vezes;
-Histórico salvo no navegador: a variável `historico` começa lendo o que já está guardado no `localStorage` (um espaço de armazenamento do navegador que mantém os dados mesmo depois de fechar a página). Se não houver nada salvo ainda, ela começa como uma lista vazia;
-Clique no botão de login: quando o botão é clicado, aparece uma mensagem avisando que o login ainda não foi implementado, e a página rola suavemente até essa mensagem;
-Envio do formulário de cadastro: ao clicar em "Cadastrar", o código impede que a página recarregue (comportamento padrão de formulários), pega o nome digitado e mostra uma mensagem de boas-vindas personalizada, depois limpando os campos do formulário;
-Envio do formulário de busca: ao clicar em "Buscar carona", o código pega o destino, horário e ponto de partida digitados. Se o destino estiver vazio, mostra um aviso pedindo para preenchê-lo. Se estiver preenchido, mostra uma mensagem de que a busca deu certo e guarda essa viagem em `historico`, salvando também no `localStorage`;
-Mostrar o histórico na tela: a função `mostrarHistorico()` limpa a lista exibida e percorre cada viagem guardada em `historico` (usando um `for`), criando um item de lista (`<li>`) para cada uma com o trajeto e o horário. Se não houver nenhuma viagem salva, mostra uma mensagem dizendo que o histórico está vazio;
-Botão de limpar histórico: quando clicado, apaga a lista `historico`, remove os dados do `localStorage` e atualiza a tela para mostrar que não há mais viagens salvas.
+**Preparação**
+- No início, guardamos em variáveis (`let`) os elementos da página que serão usados (botões, formulários, listas e mensagens).
+- Temos duas listas de exemplo: `historicoExemplo` (buscas antigas) e `caronasDisponiveis` (motoristas fictícios, já que ainda não temos servidor). Cada item é um objeto, por exemplo `{ nome: "Rafael", partida: "Santana", destino: "...", horario: "07:30", vagas: 3 }`.
+- `historico` e `usuario` são lidos do `localStorage` (memória do navegador que não some ao fechar a página). Se não houver nada salvo, usam valores padrão.
+
+**Funções auxiliares**
+- `mostrarMensagem(texto, ehErro)`: mostra a caixa de aviso no topo; se for erro, ela fica vermelha.
+- `limparTexto(texto)`: tira acentos e deixa tudo minúsculo, para que "jundiai" encontre "Jundiaí".
+- `horarioParaMinutos(horario)`: transforma "07:30" em 450 minutos, para podermos comparar horários com contas.
+- `emailValido(email)`: confere se o e-mail tem `@` e `.`.
+
+**Interação 1 - Login/Logout:** o botão mostra "Login" ou "Sair (Nome)" dependendo de existir um usuário salvo. Clicar com usuário logado apaga o cadastro do `localStorage`; sem usuário, o site orienta a fazer o cadastro.
+
+**Interação 2 - Cadastro com validação:** ao enviar, o código usa `preventDefault()` para a página não recarregar, confere se todos os campos estão preenchidos e se o e-mail é válido. Se estiver tudo certo, salva o usuário no `localStorage`, atualiza o botão de login e mostra boas-vindas. O campo "Ponto de partida" da busca já vem preenchido com a localização do usuário cadastrado.
+
+**Interação 3 - Busca de caronas:** a função `buscarCaronas()` percorre a lista de caronas com um `for` e usa `if` para aceitar só as que combinam com o destino, o ponto de partida (se informado) e o horário (com até 60 minutos de diferença). Os resultados aparecem como cards criados com `createElement`. Cada card tem o botão **"Pedir carona"**, que diminui o número de vagas (e vira "Lotada" quando chega a zero). A busca também é salva no histórico, com a data.
+
+**Interação 4 - Histórico:** `mostrarHistorico()` limpa e recria a lista na tela, mostra o total de buscas e coloca um botão **"Remover"** em cada item (usando `splice` para tirar só aquele). O botão "Limpar histórico" pede confirmação (`confirm`) antes de apagar tudo.
 
 ## 5. Conclusão
 
@@ -79,7 +85,7 @@ Com o desenvolvimento do CaronaU, aprendemos na prática como estruturar um site
 
 Também entendemos melhor o que significa pensar um projeto com caráter extensionista: em vez de só cumprir requisitos técnicos, precisamos pensar em quem realmente usaria o site e que problema real ele resolve — no nosso caso, o custo e a dificuldade de deslocamento dos estudantes até a faculdade. Isso mudou a forma como planejamos as telas, priorizando simplicidade e um fluxo direto de cadastro e busca.
 
-Como próximos passos, identificamos pontos que ainda podem evoluir: implementar o login de fato, validar melhor os campos dos formulários e trazer para o histórico dados reais (hoje ele guarda as buscas feitas, mas ainda não existe correspondência real entre os usuários cadastrados).
+Como próximos passos, identificamos pontos que ainda podem evoluir: implementar um login de verdade (com senha), permitir que o usuário **ofereça** uma carona (hoje as caronas são exemplos fixos no código) e usar um banco de dados real para que os usuários cadastrados apareçam nas buscas uns dos outros.
 
 ## 6. Equipe
 
