@@ -178,3 +178,58 @@ button {
   color: var(--textinho);
   font-weight: normal;
 }
+
+
+
+.mensagem-flutuante.erro {
+  background-color: var(--vermelho);
+  color: var(--branco);
+}
+
+#lista-resultados {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+}
+
+.card-carona {
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-carona strong {
+  color: var(--vermelho);
+}
+
+.card-carona small {
+  display: block;
+  color: var(--textinho);
+  margin-top: 4px;
+}
+
+.card-carona button:disabled {
+  background-color: var(--borda);
+  color: var(--textinho);
+  cursor: not-allowed;
+}
+
+#lista-historico li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.botao-remover {
+  background-color: white;
+  color: var(--vermelho);
+  border: 1px solid var(--vermelho);
+  padding: 4px 10px;
+  font-size: 12px;
+}
