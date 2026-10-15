@@ -48,7 +48,7 @@ Página que explica o que é o CaronaU, como ele funciona e como garantimos a se
 Usamos o Claude (IA generativa) no Check-in 1 para ajudar gerar as imagens dos wireframes. 
 
 
-## 5. Conclusão
+## Conclusão
 
 Com o desenvolvimento do CaronaU, aprendemos na prática como estruturar um site com HTML5 semântico (header, nav, main, section), organizar a estilização com CSS3 usando variáveis de cor para manter a identidade visual consistente entre páginas, e criar interatividade do lado do cliente com JavaScript — manipulando o DOM, tratando eventos de clique e de envio de formulário, e persistindo dados entre sessões com `localStorage`.
 
@@ -56,7 +56,7 @@ Também entendemos melhor o que significa pensar um projeto com caráter extensi
 
 Como próximos passos, identificamos pontos que ainda podem evoluir: implementar um login de verdade (com senha), permitir que o usuário **ofereça** uma carona (hoje as caronas são exemplos fixos no código) e usar um banco de dados real para que os usuários cadastrados apareçam nas buscas uns dos outros.
 
-## 6. Equipe
+## Equipe
 
 | Nome | RA |
 |---|---|
