@@ -1,0 +1,251 @@
+/* Autoria: Carolina Mason - RA 10771365; Dhara Dantas - RA 10780188; Giovanna Cseri - RA 10771364; Natalia Ramos - RA 10771391 */
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --vermelho: #c41e2a;
+  --vermelho-escuro: #8e1420;
+  --rosa-suave: #fff3f2;
+  --branco: #ffffff;
+  --texto: #26130f;
+  --textinho: #7a6363;
+  --borda: #f1dcda;
+  --fundo: #fffdfd;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: "Inter", Arial, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--texto);
+}
+
+h1, h2, h3 {
+  font-family: "Baloo 2", "Inter", sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.site-header {
+  width: 100%;
+  border-bottom: 1px solid var(--borda);
+  background: var(--branco);
+}
+
+.header-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.site-header h1 {
+  margin: 0;
+  color: var(--vermelho);
+  font-size: 28px;
+}
+
+.site-header nav ul {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 22px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.site-header nav a {
+  color: var(--textinho);
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.site-header nav a:hover {
+  color: var(--vermelho);
+}
+
+main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 34px 24px 48px;
+}
+
+.intro {
+  padding: 28px 4px 18px;
+  max-width: 720px;
+}
+
+.eyebrow {
+  color: var(--vermelho);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.intro h2 {
+  color: var(--vermelho-escuro);
+  font-size: clamp(30px, 5vw, 42px);
+  line-height: 1.12;
+  margin: 10px 0;
+}
+
+.intro p:last-child {
+  color: var(--textinho);
+  line-height: 1.7;
+}
+
+.panel {
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  padding: 26px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 5px 20px rgba(142, 20, 32, 0.035);
+}
+
+.panel h2 {
+  color: var(--vermelho-escuro);
+  font-size: 24px;
+  margin: 0 0 8px;
+}
+
+.panel p {
+  color: var(--textinho);
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+.texto-ajuda {
+  margin-top: 0;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+label {
+  margin-top: 10px;
+  color: var(--texto);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1.5px solid var(--borda);
+  border-radius: 8px;
+  background: var(--branco);
+  color: var(--texto);
+  font-size: 14px;
+}
+
+input:focus {
+  outline: 2px solid rgba(196, 30, 42, 0.15);
+  border-color: var(--vermelho);
+}
+
+.button-submit, button {
+  margin-top: 16px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--vermelho);
+  color: var(--branco);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.button-submit:hover, button:hover {
+  background: var(--vermelho-escuro);
+  transform: translateY(-1px);
+}
+
+.page-content {
+  min-height: 65vh;
+}
+
+.history-list {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 0;
+}
+
+.history-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 10px;
+  padding: 14px;
+  border-radius: 9px;
+  background: var(--rosa-suave);
+  color: var(--texto);
+  font-size: 14px;
+}
+
+.history-time {
+  color: var(--vermelho);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.history-note {
+  font-size: 12px !important;
+  font-style: italic;
+}
+
+.site-footer {
+  border-top: 1px solid var(--borda);
+  padding: 22px 24px;
+  text-align: center;
+  color: var(--textinho);
+  font-size: 12px;
+}
+
+@media (max-width: 620px) {
+  .header-inner {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .site-header nav ul {
+    gap: 12px 18px;
+  }
+
+  main {
+    padding: 24px 16px 36px;
+  }
+
+  .panel {
+    padding: 22px 18px;
+  }
+
+  .history-list li {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+}
