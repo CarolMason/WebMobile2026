@@ -1,0 +1,90 @@
+/* [project]/src/components/CampoFormulario.module.css [app-client] (css) */
+.CampoFormulario-module__Gs_F6W__invalido {
+  border-color: var(--vermelho);
+  background: #fff8f8;
+}
+
+.CampoFormulario-module__Gs_F6W__erro {
+  color: var(--vermelho);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* [project]/src/components/Aviso.module.css [app-client] (css) */
+.Aviso-module__PCvTXq__aviso {
+  border-radius: 8px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.Aviso-module__PCvTXq__sucesso {
+  color: #1f5d2d;
+  background: #eefaf0;
+  border: 1px solid #bfe5c7;
+}
+
+.Aviso-module__PCvTXq__erro {
+  color: var(--vermelho-escuro);
+  background: #fff0f0;
+  border: 1px solid #f3c2c5;
+}
+
+.Aviso-module__PCvTXq__info {
+  background: var(--rosa-suave);
+  border: 1px solid var(--borda);
+  color: var(--textinho);
+}
+
+/* [project]/src/components/CardCarona.module.css [app-client] (css) */
+.CardCarona-module__6DlAGa__card {
+  background: var(--rosa-suave);
+  border: 1px solid var(--borda);
+  border-radius: 9px;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 14px;
+  display: flex;
+}
+
+.CardCarona-module__6DlAGa__topo {
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  display: flex;
+}
+
+.CardCarona-module__6DlAGa__rota {
+  color: var(--texto);
+  font-size: 14px;
+}
+
+.CardCarona-module__6DlAGa__horario {
+  color: var(--vermelho);
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.CardCarona-module__6DlAGa__detalhes {
+  color: var(--textinho);
+  font-size: 13px;
+}
+
+@media (max-width: 620px) {
+  .CardCarona-module__6DlAGa__topo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+/* [project]/src/components/ListaCaronas.module.css [app-client] (css) */
+.ListaCaronas-module__Au7hla__lista {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*# sourceMappingURL=src_components_1pslccs7ddr2_._.css.map*/

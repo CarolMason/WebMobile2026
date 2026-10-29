@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/WebMobile2026/src/components/Aviso.module.css"],"sourcesContent":["/* Autoria: Carolina Mason - RA 10771365; Dhara Dantas - RA 10780188; Giovanna Cseri - RA 10771364; Natalia Ramos - RA 10771391 */\n.aviso {\n  margin-top: 16px;\n  padding: 12px 14px;\n  border-radius: 8px;\n  font-size: 14px;\n  line-height: 1.5;\n}\n\n.sucesso {\n  background: #eefaf0;\n  border: 1px solid #bfe5c7;\n  color: #1f5d2d;\n}\n\n.erro {\n  background: #fff0f0;\n  border: 1px solid #f3c2c5;\n  color: var(--vermelho-escuro);\n}\n\n.info {\n  background: var(--rosa-suave);\n  border: 1px solid var(--borda);\n  color: var(--textinho);\n}\n"],"names":[],"mappings":"AACA;;;;;;;;AAQA;;;;;;AAMA;;;;;;AAMA"}},
+    {"offset": {"line": 28, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/WebMobile2026/src/components/HistoricoLista.module.css"],"sourcesContent":["/* Autoria: Carolina Mason - RA 10771365; Dhara Dantas - RA 10780188; Giovanna Cseri - RA 10771364; Natalia Ramos - RA 10771391 */\n.limpar {\n  margin-top: 4px;\n  background: var(--branco);\n  color: var(--vermelho);\n  border: 1.5px solid var(--vermelho);\n}\n\n.limpar:hover {\n  background: var(--rosa-suave);\n  color: var(--vermelho-escuro);\n}\n"],"names":[],"mappings":"AACA;;;;;;;AAOA"}}]
+}

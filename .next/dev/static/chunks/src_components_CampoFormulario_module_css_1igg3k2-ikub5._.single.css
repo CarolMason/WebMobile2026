@@ -1,0 +1,13 @@
+/* [project]/src/components/CampoFormulario.module.css [app-client] (css) */
+.CampoFormulario-module__Gs_F6W__invalido {
+  border-color: var(--vermelho);
+  background: #fff8f8;
+}
+
+.CampoFormulario-module__Gs_F6W__erro {
+  color: var(--vermelho);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/*# sourceMappingURL=src_components_CampoFormulario_module_css_1igg3k2-ikub5._.single.css.map*/

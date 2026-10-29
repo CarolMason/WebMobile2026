@@ -1,0 +1,3 @@
+module.exports=[[97665,(a,b,c)=>{b.exports=a.r(18622)},25399,(a,b,c)=>{b.exports=a.r(97665).vendored["react-rsc"].ReactJsxRuntime},86708,a=>{var b=a.i(25399);a.s(["default",0,function({children:a}){return(0,b.jsx)("html",{lang:"pt-BR",children:(0,b.jsx)("body",{children:a})})},"metadata",0,{title:"CaronaU",description:"Plataforma para conectar estudantes que fazem trajetos parecidos."}])}],18622,(a,b,c)=>{b.exports=a.x("next/dist/compiled/next-server/app-page-turbo.runtime.prod.js",()=>require("next/dist/compiled/next-server/app-page-turbo.runtime.prod.js"))},97871,function(a){a.n(a.i(86708))}];
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__0ji_56w1wtejl._.js.map

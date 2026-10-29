@@ -1,0 +1,41 @@
+/* [project]/src/components/Aviso.module.css [app-client] (css) */
+.Aviso-module__PCvTXq__aviso {
+  border-radius: 8px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.Aviso-module__PCvTXq__sucesso {
+  color: #1f5d2d;
+  background: #eefaf0;
+  border: 1px solid #bfe5c7;
+}
+
+.Aviso-module__PCvTXq__erro {
+  color: var(--vermelho-escuro);
+  background: #fff0f0;
+  border: 1px solid #f3c2c5;
+}
+
+.Aviso-module__PCvTXq__info {
+  background: var(--rosa-suave);
+  border: 1px solid var(--borda);
+  color: var(--textinho);
+}
+
+/* [project]/src/components/HistoricoLista.module.css [app-client] (css) */
+.HistoricoLista-module__XD0Leq__limpar {
+  background: var(--branco);
+  color: var(--vermelho);
+  border: 1.5px solid var(--vermelho);
+  margin-top: 4px;
+}
+
+.HistoricoLista-module__XD0Leq__limpar:hover {
+  background: var(--rosa-suave);
+  color: var(--vermelho-escuro);
+}
+
+/*# sourceMappingURL=src_components_0ch51vi-w9b7z._.css.map*/

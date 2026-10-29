@@ -1,0 +1,44 @@
+/* [project]/src/components/CardCarona.module.css [app-client] (css) */
+.CardCarona-module__6DlAGa__card {
+  background: var(--rosa-suave);
+  border: 1px solid var(--borda);
+  border-radius: 9px;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 14px;
+  display: flex;
+}
+
+.CardCarona-module__6DlAGa__topo {
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  display: flex;
+}
+
+.CardCarona-module__6DlAGa__rota {
+  color: var(--texto);
+  font-size: 14px;
+}
+
+.CardCarona-module__6DlAGa__horario {
+  color: var(--vermelho);
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.CardCarona-module__6DlAGa__detalhes {
+  color: var(--textinho);
+  font-size: 13px;
+}
+
+@media (max-width: 620px) {
+  .CardCarona-module__6DlAGa__topo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+/*# sourceMappingURL=src_components_CardCarona_module_css_1igg3k2-ikub5._.single.css.map*/
