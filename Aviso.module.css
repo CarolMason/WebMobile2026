@@ -1,0 +1,26 @@
+/* Autoria: Carolina Mason - RA 10771365; Dhara Dantas - RA 10780188; Giovanna Cseri - RA 10771364; Natalia Ramos - RA 10771391 */
+.aviso {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.sucesso {
+  background: #eefaf0;
+  border: 1px solid #bfe5c7;
+  color: #1f5d2d;
+}
+
+.erro {
+  background: #fff0f0;
+  border: 1px solid #f3c2c5;
+  color: var(--vermelho-escuro);
+}
+
+.info {
+  background: var(--rosa-suave);
+  border: 1px solid var(--borda);
+  color: var(--textinho);
+}
