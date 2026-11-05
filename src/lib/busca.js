@@ -25,3 +25,7 @@ export function filtrarCaronas(caronas, { destino, partida, horario }) {
     return true;
   });
 }
+
+export function encontrarCaronaPorId(caronas, id) {
+  return caronas.find((carona) => String(carona.id) === String(id)) ?? null;
+}
