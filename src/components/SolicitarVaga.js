@@ -15,7 +15,7 @@ export default function SolicitarVaga() {
 
       {solicitada ? (
         <Aviso tipo="sucesso">
-          Solicitação registrada! Neste protótipo, ela ainda não é enviada ao motorista.
+          Solicitação registrada!
         </Aviso>
       ) : null}
     </>
