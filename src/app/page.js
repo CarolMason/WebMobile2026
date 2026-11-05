@@ -1,3 +1,4 @@
+/* Autoria: Carolina Mason - RA 10771365; Dhara Dantas - RA 10780188; Giovanna Cseri - RA 10771364; Natalia Ramos - RA 10771391 */
 import Layout from "../components/Layout";
 import Panel from "../components/Panel";
 import FormularioCadastro from "../components/FormularioCadastro";
