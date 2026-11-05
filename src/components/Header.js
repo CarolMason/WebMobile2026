@@ -10,6 +10,7 @@ export default function Header({ titulo = "CaronaU" }) {
           <ul>
             <li><Link href="/#cadastro">Cadastro</Link></li>
             <li><Link href="/#busca">Buscar carona</Link></li>
+            <li><Link href="/caronas">Caronas</Link></li>
             <li><Link href="/historico">Histórico</Link></li>
             <li><Link href="/sobre">Sobre</Link></li>
           </ul>
