@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function Historico() {
   return (
-    <Layout titulo="Histórico | CaronaU" tituloHeader="Histórico de buscas" classeMain="page-content">
+    <Layout tituloHeader="Histórico de buscas" classeMain="page-content">
       <Panel titulo="Suas buscas recentes" ajuda="As buscas feitas na página inicial aparecem aqui, da mais recente para a mais antiga.">
         <HistoricoLista />
       </Panel>
