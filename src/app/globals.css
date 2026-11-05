@@ -182,6 +182,23 @@ input:focus {
   transform: translateY(-1px);
 }
 
+button:disabled,
+button:disabled:hover {
+  background: var(--textinho);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.link-acao {
+  color: var(--vermelho);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.link-acao:hover {
+  color: var(--vermelho-escuro);
+}
+
 .page-content {
   min-height: 65vh;
 }
