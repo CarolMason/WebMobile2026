@@ -33,6 +33,17 @@
   font-size: 13px;
 }
 
+.verDetalhes {
+  align-self: flex-start;
+  color: var(--vermelho);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.verDetalhes:hover {
+  color: var(--vermelho-escuro);
+}
+
 @media (max-width: 620px) {
   .topo {
     align-items: flex-start;
