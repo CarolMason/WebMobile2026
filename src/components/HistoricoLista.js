@@ -1,7 +1,6 @@
 "use client";
 
 /* Autoria: Carolina Mason - RA 10771365; Dhara Dantas - RA 10780188; Giovanna Cseri - RA 10771364; Natalia Ramos - RA 10771391 */
-/* Autoria: Carolina Mason - RA 10771365; Dhara Dantas - RA 10780188; Giovanna Cseri - RA 10771364; Natalia Ramos - RA 10771391 */
 import { useEffect, useState } from "react";
 import Aviso from "./Aviso";
 import { lerHistorico, limparHistorico } from "../lib/historico";
