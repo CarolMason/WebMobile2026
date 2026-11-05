@@ -10,7 +10,7 @@ export const metadata = {
 
 export default function Caronas() {
   return (
-    <Layout tituloHeader="Caronas disponÃ­veis" classeMain="page-content">
+    <Layout tituloHeader="Caronas disponíveis" classeMain="page-content">
       <Panel titulo="Todas as caronas" ajuda="Escolha uma carona para ver os detalhes.">
         <ListaCaronas caronas={caronas} />
       </Panel>
