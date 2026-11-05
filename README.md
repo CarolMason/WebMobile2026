@@ -284,6 +284,8 @@ Foi utilizada uma ferramenta de IA generativa (Claude, da Anthropic) como apoio 
 
 - planejar a rota dinâmica e a página de detalhes;
 - sugerir a limpeza dos arquivos (autoria, imports sem uso, `.gitignore`);
+- diagnosticar um erro de build (`Module not found: Can't resolve '../../components/Layout'`), causado por caminhos de import errados em `src/app/page.js` e por três arquivos com o conteúdo trocado (`src/app/page.js`, `src/app/layout.js` e `src/components/Layout.js`), além de um acento corrompido em `src/app/caronas/page.js`.
+
 
 ## 15. Equipe
 
