@@ -30,7 +30,7 @@ const secoes = [
 
 export default function Sobre() {
   return (
-    <Layout titulo="Sobre | CaronaU" tituloHeader="Saiba mais sobre nós" classeMain="page-content">
+    <Layout tituloHeader="Saiba mais sobre nós" classeMain="page-content">
       {secoes.map((secao) => (
         <Panel key={secao.titulo} titulo={secao.titulo}>
           {secao.paragrafos.map((texto) => (
