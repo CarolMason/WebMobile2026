@@ -283,7 +283,11 @@ Para conferir se a versão de produção compila, use `npm run build`.
 Foi utilizada uma ferramenta de IA generativa (Claude, da Anthropic) como apoio nesta etapa, para:
 
 - planejar a rota dinâmica e a página de detalhes;
+- escrever a primeira versão dos arquivos novos (`caronas/page.js`, `caronas/[id]/page.js`, `not-found.js`, `DetalheCarona`, `SolicitarVaga`) e da função `encontrarCaronaPorId`;
 - sugerir a limpeza dos arquivos (autoria, imports sem uso, `.gitignore`);
+- montar este tutorial.
+
+A IA não foi usada para decidir o tema nem o público do projeto. Conforme as regras da disciplina, todos os integrantes devem revisar, testar e saber explicar cada arquivo, em especial `params`, `generateStaticParams`, `notFound`, `Suspense`, a diferença entre componente de servidor e de cliente, e `useState`, antes das apresentações e dos check-ins.
 
 ## 15. Equipe
 
