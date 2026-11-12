@@ -1,14 +1,14 @@
 <!-- Autoria: Carolina Mason - RA 10771365; Dhara Dantas - RA 10780188; Giovanna Cseri - RA 10771364; Natalia Ramos - RA 10771391 -->
 
-# CaronaU — Projeto Borboleta, Parte 4 (Check-in 4)
+# CaronaU — Projeto Borboleta, Parte 5 (Check-in 5)
 
-**Repositório no GitHub:**https://github.com/CarolMason/WebMobile2026
+**Repositório no GitHub:** https://github.com/CarolMason/WebMobile2026
 
 ## 1. Sobre o projeto
 
 O CaronaU é uma plataforma pensada para conectar estudantes que fazem trajetos parecidos até a faculdade. A proposta é facilitar o deslocamento, ajudar a dividir custos e incentivar uma alternativa mais sustentável para a comunidade universitária.
 
-Esta entrega corresponde ao **Check-in 4 do Projeto Borboleta**: avanço da migração com a implementação do **roteamento simples e dinâmico do Next.js**. O projeto usa o **App Router** (pasta `src/app`). A rota de API interna e o consumo via `fetch` ficam para o Check-in 5.
+Esta entrega corresponde ao **Check-in 5 do Projeto Borboleta**: integração com uma **API pública**, o [ViaCEP](https://viacep.com.br/). No cadastro, o estudante digita o CEP e o site consulta a API com `fetch`, preenchendo automaticamente o campo **Localização** com bairro, cidade e UF. O projeto continua usando o **App Router** (pasta `src/app`) e mantém o roteamento simples e dinâmico feito no Check-in 4.
 
 ## 2. Ideação e protótipos
 
@@ -20,7 +20,7 @@ Nesta etapa, a tela de **detalhes de uma carona** do protótipo passou a existir
 
 O CaronaU tem caráter extensionista porque busca atender a uma necessidade real da comunidade estudantil: encontrar trajetos compartilhados com outros estudantes. A proposta pode reduzir gastos com transporte, facilitar a rotina e diminuir a quantidade de carros usados individualmente.
 
-Nesta fase, o site continua sendo um protótipo acadêmico. As caronas exibidas são **dados fictícios de demonstração**; cadastros e solicitações de vaga **não são enviados a nenhum servidor**.
+Nesta fase, o site continua sendo um protótipo acadêmico. As caronas exibidas são **dados fictícios de demonstração**; cadastros e solicitações de vaga **não são enviados a nenhum servidor**. A única comunicação externa é a consulta de CEP ao ViaCEP, que recebe apenas os 8 números do CEP.
 
 ## 4. Por que migrar para componentes React?
 
@@ -65,6 +65,7 @@ src/
   data/caronas.js                  caronas fictícias (futuramente virá da API)
   lib/busca.js                     filtro e busca por id
   lib/historico.js                 histórico no navegador (localStorage)
+  lib/viacep.js                    consulta de CEP na API pública ViaCEP
 ```
 
 Os estilos seguem a regra do projeto: `globals.css` para o que é geral e **CSS Modules** (`*.module.css`) para estilos de componentes específicos.
@@ -84,11 +85,155 @@ Quando o nome da pasta vem entre colchetes, como `[id]`, ela vira um **segmento 
 
 A navegação entre páginas usa o componente `Link` de `next/link`, que troca de página sem recarregar o site inteiro.
 
-## 8. Trechos de código explicados
+## 8. Integração com a API pública ViaCEP
+
+### 8.1 Sobre a API
+
+O [ViaCEP](https://viacep.com.br/) é um webservice **gratuito e público** para consultar endereços a partir do CEP. Não precisa de cadastro nem de chave de acesso, e aceita chamadas direto do navegador (CORS liberado).
+
+| Item | Valor |
+|---|---|
+| Endpoint usado | `GET https://viacep.com.br/ws/{cep}/json/` |
+| Parâmetro | `cep`: 8 números, sem traço (ex.: `01302907`) |
+| Formato da resposta | JSON |
+| Autenticação | nenhuma |
+
+Exemplo de resposta para `https://viacep.com.br/ws/01302907/json/` (campos principais):
+
+```json
+{
+  "cep": "01302-907",
+  "logradouro": "Rua da Consolação",
+  "bairro": "Consolação",
+  "localidade": "São Paulo",
+  "uf": "SP"
+}
+```
+
+Casos de erro tratados:
+
+| Situação | O que a API devolve | O que o site mostra |
+|---|---|---|
+| CEP com formato inválido (menos de 8 números) | status `400` | não chega a chamar a API: "O CEP precisa ter 8 números." |
+| CEP com formato válido, mas inexistente (ex.: `99999999`) | status `200` com `{ "erro": "true" }` | "CEP não encontrado." |
+| Sem internet ou API fora do ar | falha no `fetch` | "Não foi possível consultar o CEP. Verifique sua conexão." |
+
+### 8.2 Onde a API é usada
+
+Na página inicial (`/`), o formulário **Cadastro de usuário** ganhou o campo **CEP (opcional)**, antes de **Localização**:
+
+1. Enquanto o usuário digita, o CEP é formatado como `00000-000`.
+2. Ao completar 8 números, o site chama o ViaCEP automaticamente e mostra "Buscando endereço...".
+3. Se o CEP existir, o campo **Localização** é preenchido com `Bairro, Cidade - UF` e aparece "Endereço encontrado: ...". O usuário ainda pode editar esse campo.
+4. Se der erro, a mensagem aparece em vermelho embaixo do campo CEP, no mesmo padrão das outras validações.
+
+O CEP é opcional: quem não quiser informar pode continuar digitando a localização à mão.
+
+### 8.3 Código: `src/lib/viacep.js`
+
+```js
+const URL_VIACEP = "https://viacep.com.br/ws";
+
+export function limparCep(cep) {
+  return cep.replace(/\D/g, "");
+}
+
+export function cepValido(cep) {
+  return /^\d{8}$/.test(limparCep(cep));
+}
+
+export async function buscarCep(cep) {
+  const numeros = limparCep(cep);
+
+  if (!cepValido(numeros)) {
+    throw new Error("O CEP precisa ter 8 números.");
+  }
+
+  let resposta;
+  try {
+    resposta = await fetch(`${URL_VIACEP}/${numeros}/json/`);
+  } catch {
+    throw new Error("Não foi possível consultar o CEP. Verifique sua conexão.");
+  }
+
+  if (!resposta.ok) {
+    throw new Error("Não foi possível consultar o CEP agora. Tente novamente.");
+  }
+
+  const dados = await resposta.json();
+
+  if (dados.erro) {
+    throw new Error("CEP não encontrado.");
+  }
+
+  return { cep: dados.cep, logradouro: dados.logradouro, bairro: dados.bairro, localidade: dados.localidade, uf: dados.uf };
+}
+```
+
+Toda a comunicação com a API fica isolada neste arquivo, separada da tela:
+
+- **`limparCep`** remove tudo que não é número (`"01302-907"` vira `"01302907"`).
+- **`cepValido`** confere se sobraram exatamente 8 números. Assim, CEPs incompletos nem chegam a gerar uma chamada.
+- **`buscarCep`** é `async`: o `fetch` faz a requisição `GET` e o `await` espera a resposta sem travar a página. Há três verificações: o `try/catch` em volta do `fetch` pega falhas de rede; `resposta.ok` pega respostas com status de erro (como o `400`); e `dados.erro` pega o caso do CEP inexistente, em que o ViaCEP responde `200` mas com `{ "erro": "true" }`. Em todos os casos a função lança um `Error` com uma mensagem pronta para mostrar ao usuário.
+- A função devolve só os campos que o site usa, para a tela não depender do formato completo da resposta.
+
+O arquivo também tem `formatarCep` (coloca o traço) e `montarLocalizacao`, que junta bairro, cidade e UF no texto `Consolação, São Paulo - SP`.
+
+### 8.4 Código: chamando a API no `FormularioCadastro`
+
+```jsx
+const [buscandoCep, setBuscandoCep] = useState(false);
+const [enderecoCep, setEnderecoCep] = useState("");
+const ultimoCep = useRef("");
+
+async function consultarCep(cep) {
+  ultimoCep.current = cep;
+  setBuscandoCep(true);
+  setEnderecoCep("");
+
+  try {
+    const endereco = await buscarCep(cep);
+    if (ultimoCep.current !== cep) return;
+    setDados((anterior) => ({ ...anterior, localizacao: montarLocalizacao(endereco) }));
+    setErros((anterior) => ({ ...anterior, cep: undefined, localizacao: undefined }));
+    setEnderecoCep([endereco.logradouro, montarLocalizacao(endereco)].filter(Boolean).join(", "));
+  } catch (erro) {
+    if (ultimoCep.current !== cep) return;
+    setErros((anterior) => ({ ...anterior, cep: erro.message }));
+  } finally {
+    if (ultimoCep.current === cep) setBuscandoCep(false);
+  }
+}
+
+function atualizarCep(evento) {
+  const cep = formatarCep(evento.target.value);
+  setDados((anterior) => ({ ...anterior, cep }));
+  setErros((anterior) => ({ ...anterior, cep: undefined }));
+  setNomeCadastrado("");
+  setEnderecoCep("");
+
+  if (cepValido(cep)) {
+    consultarCep(limparCep(cep));
+  } else {
+    ultimoCep.current = "";
+    setBuscandoCep(false);
+  }
+}
+```
+
+Passo a passo:
+
+1. **Quando chamar a API:** a consulta é disparada dentro do evento de digitação (`onChange` do campo CEP), assim que o CEP fica completo. Não foi preciso usar `useEffect`, porque a chamada é consequência direta de uma ação do usuário.
+2. **Estados da tela:** `buscandoCep` controla a mensagem "Buscando endereço...", `enderecoCep` guarda o texto "Endereço encontrado" e o erro do CEP vai para o mesmo objeto `erros` usado nas outras validações. A tela só reage a esses estados.
+3. **Resposta fora de ordem (`useRef`):** se o usuário digitar um CEP e logo trocar por outro, a resposta do primeiro pode chegar depois. O `ultimoCep` guarda o CEP mais recente, e respostas de CEPs antigos são ignoradas. Foi usado `useRef` em vez de `useState` porque esse valor não aparece na tela e não precisa redesenhar o componente.
+4. **`finally`:** roda tanto no sucesso quanto no erro, garantindo que a mensagem "Buscando endereço..." sempre suma.
+5. O `FormularioCadastro` já era um componente de cliente (`"use client"`), então o `fetch` roda direto no navegador do usuário.
+
+## 9. Trechos de código explicados (roteamento — Check-in 4)
 
 > Seguindo as diretrizes da disciplina, os arquivos de código não têm comentários explicativos. As explicações ficam aqui no tutorial.
 
-### 8.1 Rota simples: `/caronas`
+### 9.1 Rota simples: `/caronas`
 
 ```jsx
 export const metadata = {
@@ -108,7 +253,7 @@ export default function Caronas() {
 
 É só um componente exportado por `page.js`. O `metadata` define o título da aba do navegador. A lista reaproveita `ListaCaronas`, o mesmo componente dos resultados da busca, passando todas as caronas em vez de uma lista filtrada.
 
-### 8.2 Ligando a lista à rota dinâmica: link no cartão
+### 9.2 Ligando a lista à rota dinâmica: link no cartão
 
 ```jsx
 const { id, motorista, origem, destino, horario, vagas } = carona;
@@ -118,7 +263,7 @@ const { id, motorista, origem, destino, horario, vagas } = carona;
 
 O `href` é montado com o `id` da carona: a carona de `id` 3 leva a `/caronas/3`. Como o `CardCarona` é usado em vários lugares, todos os cartões ganham o link de uma vez.
 
-### 8.3 Rota dinâmica: `/caronas/[id]`
+### 9.3 Rota dinâmica: `/caronas/[id]`
 
 ```jsx
 export function generateStaticParams() {
@@ -148,12 +293,12 @@ export default function PaginaCarona({ params }) {
 Passo a passo:
 
 1. **`params`**: o Next entrega à página um objeto `params` com o valor da URL. Para `/caronas/3`, o resultado é `{ id: "3" }`. Nesta versão do Next, `params` é uma **Promise**, por isso o `await params`. Repare que o `id` chega como **texto** (`"3"`), não como número.
-2. **`encontrarCaronaPorId`**: procura na lista a carona com esse id (veja o item 8.4).
-3. **`notFound()`**: se nenhuma carona for encontrada, interrompe a renderização e mostra o `not-found.js` da pasta (item 8.5).
+2. **`encontrarCaronaPorId`**: procura na lista a carona com esse id (veja o item 9.4).
+3. **`notFound()`**: se nenhuma carona for encontrada, interrompe a renderização e mostra o `not-found.js` da pasta (item 9.5).
 4. **`generateStaticParams`**: informa ao Next quais valores de `id` existem (`"1"` a `"6"`), para ele já deixar essas páginas prontas no momento do build. Ids que não estão na lista, como `/caronas/999`, são tratados na hora do acesso e caem no `notFound()`.
 5. **`Suspense`**: o `next.config.mjs` do projeto usa `cacheComponents: true`. Nesse modo, o Next separa o que pode ser montado antes do acesso do que depende de dados conhecidos só na hora do acesso, e o valor de `params` entra nessa segunda categoria. Por isso a leitura de `params` fica num componente separado (`ConteudoCarona`) dentro de `<Suspense>`. Enquanto ele resolve, aparece o `fallback`.
 
-### 8.4 Busca por id
+### 9.4 Busca por id
 
 ```js
 export function encontrarCaronaPorId(caronas, id) {
@@ -163,7 +308,7 @@ export function encontrarCaronaPorId(caronas, id) {
 
 O `id` da URL é texto e o `id` da carona é número, então os dois são convertidos com `String(...)` antes de comparar. `find` devolve a primeira carona que bate, ou `undefined` se nenhuma bater; o `?? null` transforma isso em `null`, e o `if (!carona)` da página trata esse caso. A comparação é estrita: `/caronas/01` **não** é a carona 1.
 
-### 8.5 Página de erro da rota dinâmica
+### 9.5 Página de erro da rota dinâmica
 
 ```jsx
 export default function CaronaNaoEncontrada() {
@@ -179,7 +324,7 @@ export default function CaronaNaoEncontrada() {
 
 `not-found.js` é um nome especial do Next. Quando `notFound()` é chamada dentro da pasta `[id]`, este componente é exibido no lugar da página.
 
-### 8.6 Interatividade na página de detalhes (`useState`)
+### 9.6 Interatividade na página de detalhes (`useState`)
 
 ```jsx
 "use client";
@@ -205,16 +350,16 @@ export default function SolicitarVaga() {
 
 A página de detalhes (`DetalheCarona`) só exibe dados, então roda no servidor. O botão precisa reagir a cliques e guardar estado, por isso fica em um componente separado com `"use client"`. O estado `solicitada` começa como `false`; ao clicar, vira `true`, o botão fica desabilitado, muda de texto e a mensagem de sucesso aparece.
 
-## 9. Componentes de servidor e de cliente
+## 10. Componentes de servidor e de cliente
 
 No App Router, todo componente é de **servidor** por padrão. Ele não pode usar `useState`, `useEffect` nem eventos como `onClick`. Para isso, o arquivo precisa começar com `"use client"`.
 
 | Componente | Tipo | Motivo |
 |---|---|---|
 | páginas (`page.js`), `Layout`, `Header`, `Panel`, `DetalheCarona` | servidor | só exibem dados |
-| `BuscaCaronas`, `FormularioBusca`, `FormularioCadastro`, `HistoricoLista`, `SolicitarVaga` | cliente | usam estado, efeitos ou eventos |
+| `BuscaCaronas`, `FormularioBusca`, `FormularioCadastro`, `HistoricoLista`, `SolicitarVaga` | cliente | usam estado, efeitos ou eventos (o `FormularioCadastro` também chama o ViaCEP pelo navegador) |
 
-## 10. Como executar o projeto
+## 11. Como executar o projeto
 
 É necessário ter o Node.js instalado.
 
@@ -233,9 +378,20 @@ No App Router, todo componente é de **servidor** por padrão. Ele não pode usa
 
 4. Abra `http://localhost:3000` no navegador.
 
+A consulta de CEP precisa de internet, porque o navegador acessa o ViaCEP diretamente. Não há chave nem variável de ambiente para configurar.
+
 Para conferir se a versão de produção compila, use `npm run build`.
 
-### Roteiro de testes manuais
+### Roteiro de testes manuais — API ViaCEP
+
+1. **CEP válido:** na página inicial, digite `01302907` no campo CEP. Ele deve virar `01302-907`, aparecer "Buscando endereço..." e, em seguida, "Endereço encontrado: Rua da Consolação, Consolação, São Paulo - SP". O campo Localização deve ficar preenchido com `Consolação, São Paulo - SP`.
+2. **CEP inexistente:** digite `99999999`. Deve aparecer "CEP não encontrado." em vermelho.
+3. **CEP incompleto:** digite `123` e clique em "Cadastrar". Deve aparecer "O CEP precisa ter 8 números."
+4. **Sem CEP:** deixe o CEP vazio, preencha a localização à mão e cadastre. O cadastro deve funcionar normalmente.
+5. **Sem internet:** com a internet desligada (ou em modo offline nas ferramentas do desenvolvedor, aba Network), digite um CEP válido. Deve aparecer "Não foi possível consultar o CEP. Verifique sua conexão."
+6. **Requisição real:** com as ferramentas do desenvolvedor abertas (F12, aba Network), digite um CEP e confira a chamada `GET` para `viacep.com.br/ws/.../json/`.
+
+### Roteiro de testes manuais — roteamento
 
 1. **Menu:** o cabeçalho tem o link "Caronas". Clique e confira se abre `/caronas` com 6 cartões.
 2. **Link do cartão:** clique em "Ver detalhes" da carona 3. A URL deve ser `/caronas/3` e mostrar Beatriz L., Perdizes → Campus Alphaville, 08:00.
@@ -247,7 +403,15 @@ Para conferir se a versão de produção compila, use `npm run build`.
 8. **Busca na página inicial:** busque por `Higienópolis`. Os cartões encontrados também devem ter "Ver detalhes" funcionando.
 9. **Páginas anteriores:** confira que `/`, `/sobre` e `/historico` continuam funcionando (cadastro com validação, histórico e limpeza do histórico).
 
-## 11. O que mudou em relação à Parte 3
+## 12. O que mudou em relação à Parte 4
+
+**Novo**
+- Integração com a API pública **ViaCEP** (`src/lib/viacep.js`), com tratamento de CEP incompleto, CEP inexistente e falha de rede.
+- Campo **CEP (opcional)** no cadastro, com máscara `00000-000` e preenchimento automático da **Localização**.
+- Classe `.texto-cep` em `globals.css` para as mensagens "Buscando endereço..." e "Endereço encontrado".
+- Novas seções neste README: explicação da API (item 8) e roteiro de testes do CEP.
+
+## 13. O que mudou em relação à Parte 3
 
 **Novo**
 - Rota simples `/caronas` e rota dinâmica `/caronas/[id]`.
@@ -264,11 +428,12 @@ Para conferir se a versão de produção compila, use `npm run build`.
 - `.gitignore` agora ignora também `.next` e outros arquivos gerados (a pasta `.next` não deve ir para o GitHub).
 - Este README substitui o texto padrão do `create-next-app`.
 
-## 12. Próximos passos
+## 14. Próximos passos
 
-**Check-in 5 (API):** criar a rota de API interna do Next.js (`src/app/api/.../route.js`) devolvendo os dados das caronas em um JSON fixo, e consumi-la com `fetch` dentro de um `useEffect`, substituindo a importação direta de `data/caronas.js`. A função `encontrarCaronaPorId` e os `id` já existentes facilitam essa troca.
+- Usar o CEP também na **busca de caronas** (preencher o ponto de partida a partir do CEP), reaproveitando `buscarCep` de `lib/viacep.js`.
+- Criar uma rota de API interna do Next.js (`src/app/api/caronas/route.js`) devolvendo os dados das caronas em JSON e consumi-la com `fetch`, substituindo a importação direta de `data/caronas.js`. A função `encontrarCaronaPorId` e os `id` já existentes facilitam essa troca.
 
-## 13. Aprendizados
+## 15. Aprendizados
 
 - Em React, a tela é consequência do estado, e o que se repete vira componente.
 - No App Router, a estrutura de pastas define as URLs: pasta = trecho do endereço e `page.js` = página.
@@ -276,18 +441,27 @@ Para conferir se a versão de produção compila, use `npm run build`.
 - O valor que vem da URL é sempre texto, então é preciso converter antes de comparar com números.
 - É preciso tratar o caso em que o id não existe, com `notFound()` e `not-found.js`.
 - Componentes são de servidor por padrão, e só o que usa estado ou eventos precisa de `"use client"`.
+- Consumir uma API pública com `fetch`, `async/await` e `try/catch`, tratando também os erros que chegam com status `200` (como o `{ "erro": "true" }` do ViaCEP).
+- Usar `useRef` para ignorar respostas antigas quando o usuário muda o CEP antes da primeira resposta chegar.
 - O que fica no repositório importa: arquivos gerados, como `.next` e `node_modules`, devem estar no `.gitignore`.
 
-## 14. Uso de inteligência artificial
+## 16. Uso de inteligência artificial
 
-Foi utilizada uma ferramenta de IA generativa (Claude, da Anthropic) como apoio nesta etapa, para:
+Foi utilizada uma ferramenta de IA generativa (Claude, da Anthropic) como apoio nas etapas do projeto.
+
+No Check-in 5, para:
+
+- implementar a integração com o ViaCEP (`lib/viacep.js` e campo CEP no cadastro);
+- testar os casos de erro da API e atualizar este README.
+
+No Check-in 4, para:
 
 - planejar a rota dinâmica e a página de detalhes;
 - sugerir a limpeza dos arquivos (autoria, imports sem uso, `.gitignore`);
 - diagnosticar um erro de build (`Module not found: Can't resolve '../../components/Layout'`), causado por caminhos de import errados em `src/app/page.js` e por três arquivos com o conteúdo trocado (`src/app/page.js`, `src/app/layout.js` e `src/components/Layout.js`), além de um acento corrompido em `src/app/caronas/page.js`.
 
 
-## 15. Equipe
+## 17. Equipe
 
 | Nome | RA |
 |---|---|
