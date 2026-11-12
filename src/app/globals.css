@@ -266,3 +266,9 @@ button:disabled:hover {
     gap: 6px;
   }
 }
+
+.texto-cep {
+  color: var(--textinho);
+  font-size: 12px;
+  font-weight: 600;
+}
