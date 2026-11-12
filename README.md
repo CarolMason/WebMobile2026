@@ -2,7 +2,7 @@
 
 # CaronaU — Projeto Borboleta, Parte 4 (Check-in 4)
 
-**Repositório no GitHub:** _(cole aqui o link do repositório do grupo)_
+**Repositório no GitHub:**
 
 ## 1. Sobre o projeto
 
