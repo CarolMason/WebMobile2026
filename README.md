@@ -2,7 +2,7 @@
 
 # CaronaU — Projeto Borboleta, Parte 4 (Check-in 4)
 
-**Repositório no GitHub:**
+**Repositório no GitHub:**https://github.com/CarolMason/WebMobile2026
 
 ## 1. Sobre o projeto
 
