@@ -1,6 +1,6 @@
 <!-- Autoria: Carolina Mason - RA 10771365; Dhara Dantas - RA 10780188; Giovanna Cseri - RA 10771364; Natalia Ramos - RA 10771391 -->
 
-# CaronaU — Projeto Borboleta, Parte 5 (Check-in 5)
+# CaronaU — Projeto Borboleta, Parte 6 (Check-in 6)
 
 **Repositório no GitHub:** https://github.com/CarolMason/WebMobile2026
 
@@ -8,7 +8,7 @@
 
 O CaronaU é uma plataforma pensada para conectar estudantes que fazem trajetos parecidos até a faculdade. A proposta é facilitar o deslocamento, ajudar a dividir custos e incentivar uma alternativa mais sustentável para a comunidade universitária.
 
-Esta entrega corresponde ao **Check-in 5 do Projeto Borboleta**: integração com uma **API pública**, o [ViaCEP](https://viacep.com.br/). No cadastro, o estudante digita o CEP e o site consulta a API com `fetch`, preenchendo automaticamente o campo **Localização** com bairro, cidade e UF. O projeto continua usando o **App Router** (pasta `src/app`) e mantém o roteamento simples e dinâmico feito no Check-in 4.
+Esta entrega corresponde ao **Check-in 6 do Projeto Borboleta**: uma **API própria, criada do zero**, que **guarda o histórico de buscas no servidor** (`/api/historico`). Ela se soma à integração com a **API pública** [ViaCEP](https://viacep.com.br/) (Check-in 5), em que o estudante digita o CEP no cadastro e o site preenche a **Localização** com bairro, cidade e UF. O projeto continua usando o **App Router** (pasta `src/app`) e mantém o roteamento simples e dinâmico feito no Check-in 4.
 
 ## 2. Ideação e protótipos
 
@@ -20,7 +20,7 @@ Nesta etapa, a tela de **detalhes de uma carona** do protótipo passou a existir
 
 O CaronaU tem caráter extensionista porque busca atender a uma necessidade real da comunidade estudantil: encontrar trajetos compartilhados com outros estudantes. A proposta pode reduzir gastos com transporte, facilitar a rotina e diminuir a quantidade de carros usados individualmente.
 
-Nesta fase, o site continua sendo um protótipo acadêmico. As caronas exibidas são **dados fictícios de demonstração**; cadastros e solicitações de vaga **não são enviados a nenhum servidor**. A única comunicação externa é a consulta de CEP ao ViaCEP, que recebe apenas os 8 números do CEP.
+Nesta fase, o site continua sendo um protótipo acadêmico. As caronas exibidas são **dados fictícios de demonstração**; cadastros e solicitações de vaga **não são enviados a nenhum servidor**. A única informação guardada no servidor é o **histórico de buscas** (destino, horário e ponto de partida), ligado a um identificador aleatório do navegador, sem nome nem dados pessoais. A única comunicação externa é a consulta de CEP ao ViaCEP, que recebe apenas os 8 números do CEP.
 
 ## 4. Por que migrar para componentes React?
 
@@ -42,6 +42,7 @@ Exemplos concretos neste projeto:
 | `/historico` | simples | `src/app/historico/page.js` | Histórico de buscas |
 | `/caronas` | simples | `src/app/caronas/page.js` | Lista de todas as caronas |
 | `/caronas/[id]` | **dinâmica** | `src/app/caronas/[id]/page.js` | Detalhes de uma carona (ex.: `/caronas/3`) |
+| `/api/historico` | **API** (Route Handler) | `src/app/api/historico/route.js` | Histórico de buscas em JSON (`GET`, `POST`, `DELETE`) |
 
 ## 6. Organização dos arquivos
 
@@ -58,13 +59,16 @@ src/
       [id]/
         page.js                    rota dinâmica /caronas/[id]
         not-found.js               tela exibida quando o id não existe
+    api/
+      historico/route.js           API interna do histórico (GET, POST, DELETE)
   components/
     Aviso, CampoFormulario, CardCarona, DetalheCarona, Footer, FormularioBusca,
     FormularioCadastro, Header, HistoricoLista, Layout, ListaCaronas, Panel,
     SolicitarVaga, BuscaCaronas      (+ arquivos *.module.css)
   data/caronas.js                  caronas fictícias (futuramente virá da API)
   lib/busca.js                     filtro e busca por id
-  lib/historico.js                 histórico no navegador (localStorage)
+  lib/historico.js                 cliente da API de histórico (fetch para /api/historico)
+  lib/historicoStore.js            armazenamento do histórico no servidor (arquivo .data/historico.json)
   lib/viacep.js                    consulta de CEP na API pública ViaCEP
 ```
 
@@ -229,11 +233,183 @@ Passo a passo:
 4. **`finally`:** roda tanto no sucesso quanto no erro, garantindo que a mensagem "Buscando endereço..." sempre suma.
 5. O `FormularioCadastro` já era um componente de cliente (`"use client"`), então o `fetch` roda direto no navegador do usuário.
 
-## 9. Trechos de código explicados (roteamento — Check-in 4)
+## 9. API própria: histórico de buscas (Check-in 6)
+
+### 9.1 Visão geral
+
+Até o Check-in 5, o histórico de buscas ficava no `localStorage` do navegador. Agora o projeto tem uma **API própria, criada do zero**, que guarda o histórico no servidor. Ela é um **Route Handler** do Next.js: um arquivo `route.js` dentro de `src/app` que responde a requisições HTTP em vez de desenhar uma página.
+
+| Método | Endereço | Corpo da requisição | Resposta |
+|---|---|---|---|
+| `GET` | `/api/historico` | nenhum | `200` com `{ "itens": [...] }` |
+| `POST` | `/api/historico` | `{ "destino", "horario", "partida" }` | `201` com `{ "itens": [...] }`, `400` (dados inválidos) ou `413` (corpo grande demais) |
+| `DELETE` | `/api/historico` | nenhum | `200` com `{ "itens": [] }` |
+
+Se algo falhar no servidor, a resposta é `500` com `{ "erro": "..." }`. Os detalhes técnicos vão só para o log do servidor, nunca para o usuário.
+
+Exemplo de resposta de `GET /api/historico`:
+
+```json
+{
+  "itens": [
+    { "destino": "Mackenzie", "horario": "07:30", "partida": "Santana", "id": 1795089416593 }
+  ]
+}
+```
+
+As buscas vêm da mais recente para a mais antiga, no máximo 10 por visitante.
+
+### 9.2 Como cada visitante tem o seu histórico
+
+O site não tem login. Por isso, na primeira busca salva, a API cria um identificador aleatório (`randomUUID`) e o envia ao navegador no cookie `caronau_visitante`. Nas próximas requisições o navegador devolve o cookie, e a API usa esse valor para separar os dados.
+
+| Atributo do cookie | Valor | Para quê |
+|---|---|---|
+| `httpOnly` | `true` | o JavaScript da página não consegue ler o cookie |
+| `sameSite` | `strict` | o cookie não é enviado em requisições vindas de outros sites |
+| `secure` | `true` em produção | o cookie só trafega por HTTPS |
+| `path` | `/api/historico` | o cookie só vai para esta API |
+| `maxAge` | 1 ano | duração do cookie |
+
+Consequência: quem trocar de navegador ou apagar os cookies perde o acesso ao histórico antigo. Um `GET` ou `DELETE` sem cookie não cria nenhum visitante; só o `POST` cria.
+
+### 9.3 Código: `src/app/api/historico/route.js`
+
+```js
+async function obterVisitante({ criar }) {
+  const jar = await cookies();
+  const existente = jar.get(COOKIE)?.value;
+  if (existente && UUID.test(existente)) return existente;
+  if (!criar) return null;
+
+  const novo = randomUUID();
+  jar.set(COOKIE, novo, {
+    httpOnly: true,
+    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
+    path: "/api/historico",
+    maxAge: UM_ANO,
+  });
+  return novo;
+}
+
+function validarBusca(corpo) {
+  if (!corpo || typeof corpo !== "object" || Array.isArray(corpo)) return null;
+  const { destino, horario = "", partida = "" } = corpo;
+
+  if (typeof destino !== "string" || typeof horario !== "string" || typeof partida !== "string") return null;
+
+  const busca = { destino: destino.trim(), horario, partida: partida.trim() };
+  if (!busca.destino || busca.destino.length > 100 || busca.partida.length > 100) return null;
+  if (busca.horario !== "" && !/^([01]\d|2[0-3]):[0-5]\d$/.test(busca.horario)) return null;
+  return busca;
+}
+
+export async function POST(request) {
+  try {
+    const texto = await request.text();
+    if (texto.length > TAMANHO_MAXIMO_CORPO) return erro("Requisição inválida.", 413);
+
+    let corpo;
+    try {
+      corpo = JSON.parse(texto);
+    } catch {
+      return erro("Requisição inválida.", 400);
+    }
+
+    const busca = validarBusca(corpo);
+    if (!busca) return erro("Dados da busca inválidos.", 400);
+
+    const visitante = await obterVisitante({ criar: true });
+    const itens = await adicionarBusca(visitante, busca);
+    return Response.json({ itens }, { status: 201 });
+  } catch (e) {
+    console.error("Falha ao salvar a busca", e);
+    return erro("Não foi possível salvar a busca.", 500);
+  }
+}
+```
+
+Passo a passo:
+
+1. **Uma função por método:** o Next chama `GET`, `POST` ou `DELETE` conforme o método da requisição. Qualquer outro método recebe `405` automaticamente.
+2. **Validação no servidor:** a validação do formulário no navegador não basta, porque qualquer pessoa pode chamar a API diretamente. `validarBusca` confere que `destino`, `horario` e `partida` são texto, que o destino não está vazio, que os textos têm no máximo 100 caracteres e que o horário segue o formato `HH:MM`. Só os três campos esperados são salvos; qualquer campo extra enviado é descartado.
+3. **Limite de tamanho:** corpos com mais de 2000 caracteres são rejeitados com `413` antes mesmo de serem interpretados.
+4. **Cookie validado:** o valor do cookie só é aceito se tiver o formato de um UUID. Um cookie adulterado é ignorado.
+5. **Erros genéricos:** o `catch` registra o erro completo com `console.error` e devolve só uma mensagem simples ao cliente.
+6. **Sem cache:** como a API lê `cookies()`, ela roda a cada requisição. Isso é o esperado com `cacheComponents: true`, porque cada visitante precisa ver o próprio histórico.
+
+### 9.4 Código: `src/lib/historicoStore.js`
+
+```js
+const PASTA = path.join(process.cwd(), ".data");
+const ARQUIVO = path.join(PASTA, "historico.json");
+const LIMITE_POR_VISITANTE = 10;
+const LIMITE_VISITANTES = 1000;
+
+let fila = Promise.resolve();
+
+function enfileirar(tarefa) {
+  const execucao = fila.then(tarefa);
+  fila = execucao.catch(() => {});
+  return execucao;
+}
+
+async function gravarTudo(dados) {
+  await mkdir(PASTA, { recursive: true });
+  const temporario = `${ARQUIVO}.tmp`;
+  await writeFile(temporario, JSON.stringify(dados), "utf8");
+  await rename(temporario, ARQUIVO);
+}
+```
+
+Este módulo é a única parte que sabe **onde** os dados ficam. A API só chama `listarBuscas`, `adicionarBusca` e `limparBuscas`, então trocar o arquivo por um banco de dados mexe apenas aqui.
+
+- **Formato do arquivo:** um objeto JSON em que cada chave é o identificador de um visitante e o valor é a lista das buscas dele.
+- **Fila (`enfileirar`):** duas requisições ao mesmo tempo poderiam ler o arquivo, alterar e gravar uma por cima da outra, perdendo dados. A fila executa as operações **uma de cada vez**. Se uma delas falhar, o `catch` evita que a fila trave para as seguintes.
+- **Escrita segura (`gravarTudo`):** o conteúdo é gravado primeiro em `historico.json.tmp` e depois renomeado. Assim o arquivo final nunca fica pela metade se o servidor parar no meio da escrita.
+- **Limites:** cada visitante guarda no máximo 10 buscas. O arquivo guarda no máximo 1000 visitantes, descartando os que estão há mais tempo sem salvar uma busca. Isso impede que o arquivo cresça sem controle.
+- **`Object.hasOwn`:** usado para consultar o visitante, para que um identificador como `__proto__` não acesse propriedades internas do objeto.
+
+### 9.5 Código: consumindo a API no navegador
+
+```js
+const URL_API = "/api/historico";
+
+async function chamar(opcoes) {
+  try {
+    const resposta = await fetch(URL_API, { ...opcoes, signal: AbortSignal.timeout(10000) });
+    if (!resposta.ok) return null;
+    const { itens } = await resposta.json();
+    return Array.isArray(itens) ? itens : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function lerHistorico() {
+  return (await chamar({ method: "GET" })) ?? [];
+}
+```
+
+`src/lib/historico.js` concentra as chamadas à API, como o `viacep.js` faz com o ViaCEP. Pontos importantes:
+
+- **Mesmos nomes de função:** `FormularioBusca` continua chamando `adicionarBusca(criterios)` sem mudanças. Só `HistoricoLista` precisou ser ajustado, porque as funções agora devolvem uma Promise (`lerHistorico().then(...)` e `await limparHistorico()`).
+- **Falha não quebra a tela:** se a API estiver fora do ar ou devolver erro, `chamar` devolve `null`, e o histórico aparece vazio. A busca de caronas continua funcionando.
+- **Tempo limite:** `AbortSignal.timeout(10000)` cancela a requisição depois de 10 segundos, para a tela não esperar para sempre.
+- **Endereço relativo:** como a API está no mesmo site, basta `/api/historico`, sem domínio e sem CORS.
+
+### 9.6 Limitações
+
+- O armazenamento em arquivo serve para desenvolvimento e para um único servidor. Em hospedagens sem disco persistente (como serviços serverless), o arquivo seria perdido, e seria necessário um banco de dados.
+- O histórico está ligado ao navegador (cookie), não a uma pessoa. Não há login.
+- Não há limite de requisições por visitante (rate limit).
+
+## 10. Trechos de código explicados (roteamento — Check-in 4)
 
 > Seguindo as diretrizes da disciplina, os arquivos de código não têm comentários explicativos. As explicações ficam aqui no tutorial.
 
-### 9.1 Rota simples: `/caronas`
+### 10.1 Rota simples: `/caronas`
 
 ```jsx
 export const metadata = {
@@ -253,7 +429,7 @@ export default function Caronas() {
 
 É só um componente exportado por `page.js`. O `metadata` define o título da aba do navegador. A lista reaproveita `ListaCaronas`, o mesmo componente dos resultados da busca, passando todas as caronas em vez de uma lista filtrada.
 
-### 9.2 Ligando a lista à rota dinâmica: link no cartão
+### 10.2 Ligando a lista à rota dinâmica: link no cartão
 
 ```jsx
 const { id, motorista, origem, destino, horario, vagas } = carona;
@@ -263,7 +439,7 @@ const { id, motorista, origem, destino, horario, vagas } = carona;
 
 O `href` é montado com o `id` da carona: a carona de `id` 3 leva a `/caronas/3`. Como o `CardCarona` é usado em vários lugares, todos os cartões ganham o link de uma vez.
 
-### 9.3 Rota dinâmica: `/caronas/[id]`
+### 10.3 Rota dinâmica: `/caronas/[id]`
 
 ```jsx
 export function generateStaticParams() {
@@ -293,12 +469,12 @@ export default function PaginaCarona({ params }) {
 Passo a passo:
 
 1. **`params`**: o Next entrega à página um objeto `params` com o valor da URL. Para `/caronas/3`, o resultado é `{ id: "3" }`. Nesta versão do Next, `params` é uma **Promise**, por isso o `await params`. Repare que o `id` chega como **texto** (`"3"`), não como número.
-2. **`encontrarCaronaPorId`**: procura na lista a carona com esse id (veja o item 9.4).
-3. **`notFound()`**: se nenhuma carona for encontrada, interrompe a renderização e mostra o `not-found.js` da pasta (item 9.5).
+2. **`encontrarCaronaPorId`**: procura na lista a carona com esse id (veja o item 10.4).
+3. **`notFound()`**: se nenhuma carona for encontrada, interrompe a renderização e mostra o `not-found.js` da pasta (item 10.5).
 4. **`generateStaticParams`**: informa ao Next quais valores de `id` existem (`"1"` a `"6"`), para ele já deixar essas páginas prontas no momento do build. Ids que não estão na lista, como `/caronas/999`, são tratados na hora do acesso e caem no `notFound()`.
 5. **`Suspense`**: o `next.config.mjs` do projeto usa `cacheComponents: true`. Nesse modo, o Next separa o que pode ser montado antes do acesso do que depende de dados conhecidos só na hora do acesso, e o valor de `params` entra nessa segunda categoria. Por isso a leitura de `params` fica num componente separado (`ConteudoCarona`) dentro de `<Suspense>`. Enquanto ele resolve, aparece o `fallback`.
 
-### 9.4 Busca por id
+### 10.4 Busca por id
 
 ```js
 export function encontrarCaronaPorId(caronas, id) {
@@ -308,7 +484,7 @@ export function encontrarCaronaPorId(caronas, id) {
 
 O `id` da URL é texto e o `id` da carona é número, então os dois são convertidos com `String(...)` antes de comparar. `find` devolve a primeira carona que bate, ou `undefined` se nenhuma bater; o `?? null` transforma isso em `null`, e o `if (!carona)` da página trata esse caso. A comparação é estrita: `/caronas/01` **não** é a carona 1.
 
-### 9.5 Página de erro da rota dinâmica
+### 10.5 Página de erro da rota dinâmica
 
 ```jsx
 export default function CaronaNaoEncontrada() {
@@ -324,7 +500,7 @@ export default function CaronaNaoEncontrada() {
 
 `not-found.js` é um nome especial do Next. Quando `notFound()` é chamada dentro da pasta `[id]`, este componente é exibido no lugar da página.
 
-### 9.6 Interatividade na página de detalhes (`useState`)
+### 10.6 Interatividade na página de detalhes (`useState`)
 
 ```jsx
 "use client";
@@ -350,7 +526,7 @@ export default function SolicitarVaga() {
 
 A página de detalhes (`DetalheCarona`) só exibe dados, então roda no servidor. O botão precisa reagir a cliques e guardar estado, por isso fica em um componente separado com `"use client"`. O estado `solicitada` começa como `false`; ao clicar, vira `true`, o botão fica desabilitado, muda de texto e a mensagem de sucesso aparece.
 
-## 10. Componentes de servidor e de cliente
+## 11. Componentes de servidor e de cliente
 
 No App Router, todo componente é de **servidor** por padrão. Ele não pode usar `useState`, `useEffect` nem eventos como `onClick`. Para isso, o arquivo precisa começar com `"use client"`.
 
@@ -359,7 +535,7 @@ No App Router, todo componente é de **servidor** por padrão. Ele não pode usa
 | páginas (`page.js`), `Layout`, `Header`, `Panel`, `DetalheCarona` | servidor | só exibem dados |
 | `BuscaCaronas`, `FormularioBusca`, `FormularioCadastro`, `HistoricoLista`, `SolicitarVaga` | cliente | usam estado, efeitos ou eventos (o `FormularioCadastro` também chama o ViaCEP pelo navegador) |
 
-## 11. Como executar o projeto
+## 12. Como executar o projeto
 
 É necessário ter o Node.js instalado.
 
@@ -379,6 +555,8 @@ No App Router, todo componente é de **servidor** por padrão. Ele não pode usa
 4. Abra `http://localhost:3000` no navegador.
 
 A consulta de CEP precisa de internet, porque o navegador acessa o ViaCEP diretamente. Não há chave nem variável de ambiente para configurar.
+
+O histórico de buscas é gravado na pasta `.data/`, criada automaticamente na primeira busca e ignorada pelo Git. Por isso o servidor precisa de permissão de escrita na pasta do projeto.
 
 Para conferir se a versão de produção compila, use `npm run build`.
 
@@ -403,7 +581,40 @@ Para conferir se a versão de produção compila, use `npm run build`.
 8. **Busca na página inicial:** busque por `Higienópolis`. Os cartões encontrados também devem ter "Ver detalhes" funcionando.
 9. **Páginas anteriores:** confira que `/`, `/sobre` e `/historico` continuam funcionando (cadastro com validação, histórico e limpeza do histórico).
 
-## 12. O que mudou em relação à Parte 4
+### Roteiro de testes manuais — API de histórico
+
+1. **Salvar:** na página inicial, busque por `Mackenzie` e abra `/historico`. A busca deve aparecer no topo da lista.
+2. **Persistência no servidor:** confira que o arquivo `.data/historico.json` foi criado na raiz do projeto e contém a busca.
+3. **Isolamento:** abra o site em uma janela anônima. O histórico deve aparecer vazio, porque o cookie de visitante é outro.
+4. **Limite:** faça 11 buscas diferentes. O histórico deve mostrar só as 10 mais recentes.
+5. **Limpar:** em `/historico`, clique em "Limpar histórico". A lista deve ficar vazia e continuar vazia ao recarregar a página.
+6. **Requisições diretas** (com o servidor rodando, em outro terminal):
+
+   ```bash
+   curl -c cookies.txt -b cookies.txt http://localhost:3000/api/historico
+   curl -c cookies.txt -b cookies.txt -X POST -H "Content-Type: application/json" -d '{"destino":"Mackenzie","horario":"07:30","partida":"Santana"}' http://localhost:3000/api/historico
+   curl -c cookies.txt -b cookies.txt -X POST -H "Content-Type: application/json" -d '{"destino":""}' http://localhost:3000/api/historico
+   curl -c cookies.txt -b cookies.txt -X DELETE http://localhost:3000/api/historico
+   ```
+
+   Resultados esperados: lista vazia, `201` com a busca salva, `400` com `{"erro":"Dados da busca inválidos."}` e lista vazia após o `DELETE`.
+7. **API fora do ar:** se a chamada à API falhar, a busca de caronas na página inicial continua funcionando; apenas a busca deixa de entrar no histórico.
+
+## 13. O que mudou em relação à Parte 5
+
+**Novo**
+- API própria `/api/historico` (`src/app/api/historico/route.js`) com `GET`, `POST` e `DELETE`.
+- Módulo de armazenamento `src/lib/historicoStore.js`, que grava o histórico em `.data/historico.json`.
+- Identificação do visitante por cookie `caronau_visitante` (aleatório, `HttpOnly`, `SameSite=Strict`).
+- Validação dos dados recebidos e respostas de erro genéricas.
+- Novas seções neste README: explicação da API (item 9) e roteiro de testes do histórico.
+
+**Alterado**
+- `src/lib/historico.js` deixou de usar `localStorage` e passou a chamar a API com `fetch`. As funções `lerHistorico`, `adicionarBusca` e `limparHistorico` mantêm os nomes, mas agora são `async`.
+- `HistoricoLista` passou a aguardar as respostas da API, e o aviso da tela mudou para "As buscas ficam salvas no servidor e são associadas a este navegador."
+- `.gitignore` ignora a pasta `.data`, para o histórico gravado não ir para o GitHub.
+
+## 14. O que mudou em relação à Parte 4
 
 **Novo**
 - Integração com a API pública **ViaCEP** (`src/lib/viacep.js`), com tratamento de CEP incompleto, CEP inexistente e falha de rede.
@@ -411,7 +622,7 @@ Para conferir se a versão de produção compila, use `npm run build`.
 - Classe `.texto-cep` em `globals.css` para as mensagens "Buscando endereço..." e "Endereço encontrado".
 - Novas seções neste README: explicação da API (item 8) e roteiro de testes do CEP.
 
-## 13. O que mudou em relação à Parte 3
+## 15. O que mudou em relação à Parte 3
 
 **Novo**
 - Rota simples `/caronas` e rota dinâmica `/caronas/[id]`.
@@ -428,12 +639,14 @@ Para conferir se a versão de produção compila, use `npm run build`.
 - `.gitignore` agora ignora também `.next` e outros arquivos gerados (a pasta `.next` não deve ir para o GitHub).
 - Este README substitui o texto padrão do `create-next-app`.
 
-## 14. Próximos passos
+## 16. Próximos passos
 
 - Usar o CEP também na **busca de caronas** (preencher o ponto de partida a partir do CEP), reaproveitando `buscarCep` de `lib/viacep.js`.
 - Criar uma rota de API interna do Next.js (`src/app/api/caronas/route.js`) devolvendo os dados das caronas em JSON e consumi-la com `fetch`, substituindo a importação direta de `data/caronas.js`. A função `encontrarCaronaPorId` e os `id` já existentes facilitam essa troca.
+- Trocar o arquivo JSON do histórico por um banco de dados (por exemplo, SQLite), necessário para hospedar o site em serviços sem disco persistente.
+- Associar o histórico a uma conta de usuário (login) em vez do cookie de visitante.
 
-## 15. Aprendizados
+## 17. Aprendizados
 
 - Em React, a tela é consequência do estado, e o que se repete vira componente.
 - No App Router, a estrutura de pastas define as URLs: pasta = trecho do endereço e `page.js` = página.
@@ -443,11 +656,20 @@ Para conferir se a versão de produção compila, use `npm run build`.
 - Componentes são de servidor por padrão, e só o que usa estado ou eventos precisa de `"use client"`.
 - Consumir uma API pública com `fetch`, `async/await` e `try/catch`, tratando também os erros que chegam com status `200` (como o `{ "erro": "true" }` do ViaCEP).
 - Usar `useRef` para ignorar respostas antigas quando o usuário muda o CEP antes da primeira resposta chegar.
+- Criar uma API própria no Next.js com **Route Handlers** (`route.js`): cada função exportada (`GET`, `POST`, `DELETE`) responde a um método HTTP.
+- Nunca confiar no que vem do cliente: o servidor valida tipo, tamanho e formato dos dados e responde com erros genéricos.
+- Sem login, é possível separar os dados de cada visitante com um identificador aleatório guardado em cookie `HttpOnly`.
+- Dados gravados em arquivo precisam de cuidado com escritas simultâneas (fila de operações) e com arquivo corrompido (escrita em arquivo temporário seguida de `rename`).
 - O que fica no repositório importa: arquivos gerados, como `.next` e `node_modules`, devem estar no `.gitignore`.
 
-## 16. Uso de inteligência artificial
+## 18. Uso de inteligência artificial
 
-Foi utilizada uma ferramenta de IA generativa (Claude, da Anthropic) como apoio nas etapas do projeto.
+Foram utilizadas ferramentas de IA generativa como apoio nas etapas do projeto: Claude (Anthropic) nos Check-ins 4 e 5 e IBM Bob no Check-in 6.
+
+No Check-in 6, para:
+
+- criar a API interna de histórico (`src/app/api/historico/route.js` e `src/lib/historicoStore.js`) e adaptar o cliente (`lib/historico.js` e `HistoricoLista`);
+- testar a API com requisições reais e escrever este README.
 
 No Check-in 5, para:
 
@@ -461,7 +683,7 @@ No Check-in 4, para:
 - diagnosticar um erro de build (`Module not found: Can't resolve '../../components/Layout'`), causado por caminhos de import errados em `src/app/page.js` e por três arquivos com o conteúdo trocado (`src/app/page.js`, `src/app/layout.js` e `src/components/Layout.js`), além de um acento corrompido em `src/app/caronas/page.js`.
 
 
-## 17. Equipe
+## 19. Equipe
 
 | Nome | RA |
 |---|---|
